@@ -1,9 +1,9 @@
 services:
   dev:
     image: golang:1.23-bookworm
-    working_dir: /autostack
+    working_dir: /stackgen
     volumes:
-      - ./:/autostack
+      - ./:/stackgen
       - go-pkg-cache:/go/pkg
       - go-build-cache:/root/.cache/go-build
     environment:
