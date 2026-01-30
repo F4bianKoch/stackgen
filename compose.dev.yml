@@ -1,0 +1,15 @@
+services:
+  dev:
+    image: golang:1.23-bookworm
+    working_dir: /autostack
+    volumes:
+      - ./:/autostack
+      - go-pkg-cache:/go/pkg
+      - go-build-cache:/root/.cache/go-build
+    environment:
+      - CGO_ENABLED=0
+    command: bash -lc "sleep infinity"
+
+volumes:
+  go-pkg-cache:
+  go-build-cache:
