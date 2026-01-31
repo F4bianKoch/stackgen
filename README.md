@@ -42,21 +42,21 @@ Setting this up repeatedly is slow and error-prone.
 
 ## Features (current & planned)
 
-### Current
-- CLI skeleton with standard commands
-- Linux-first development workflow
-- Docker Compose–based execution
-- Clear and explicit execution model
-
-### Planned (v0.1.0)
-- `stackgen init` – generate a runnable stack from templates
-- `stackgen up / down` – run and stop the stack
-- `stackgen doctor` – validate local prerequisites (Docker, Compose, etc.)
-- `--dry-run` and `--verbose` for full transparency
-- Opinionated starter stacks (e.g. API + Postgres)
-- Simple integration patterns for external APIs
+### v0.1.0
+- `stackgen version` – returns current stackgen version
+- `stackgen doctor` – validate local prerequisistes (Docker, Compose, etc.)
+- `stackgen init <project-name>`
+- Safe project scaffolding with `--force`
+- Template-based stack generation
+- Minimal Docker Compose stack (basic: postgres service)
 
 Authentication, advanced workflows, and plugins are intentionally **out of scope for the first versions**.
+
+### Notes
+- stackgen currently runs from the repository (templates are not embedded yet)
+- Linux-first development
+
+Feedback welcome!
 
 ---
 
@@ -77,31 +77,30 @@ To use `stackgen`:
 ```bash
 git clone https://github.com/<your-username>/stackgen.git
 cd stackgen
-go build -o bin/stackgen .
 ```
 
 Run it:
 
 ```bash
-./bin/stackgen --help
+go run . 
 ```
 
 Binary releases and `go install` support will be added later.
 
 ### Usage (early preview)
 ```bash
+stackgen doctor
 stackgen init my-automation
 cd my-automation
-stackgen up
+docker compose up -d
 ```
 
 ```bash
-stackgen doctor
-stackgen down
+docker compose down
 ```
 
 
-Most commands support:
+Most commands will eventually support:
 
 - `--verbose` → print all executed steps
 
@@ -122,7 +121,6 @@ docker compose -f compose.dev.yml exec dev bash
 Inside the container:
 
 ```bash
-go test ./...
 go run . --help
 ```
 
