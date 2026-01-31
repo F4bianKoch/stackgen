@@ -1,0 +1,14 @@
+{
+  "name": "Go Dev",
+  "dockerComposeFile": "../compose.dev.yml",
+  "service": "dev",
+  "workspaceFolder": "/stackgen",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ]
+    }
+  }
+}
