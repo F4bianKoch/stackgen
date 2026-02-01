@@ -14,16 +14,20 @@ func Run(list bool) error {
 	return nil
 }
 
-func listTemplates() {
+func listTemplates() error {
 	templatesPath, err := filepath.Abs("./templates")
 	dir, err := os.ReadDir(templatesPath)
 	if err != nil {
-		fmt.Println("Error reading templates directory:", err)
-		return
+		if os.IsNotExist(err) {
+			return fmt.Errorf("template %s does not exist", templatesPath)
+		}
+		return err
 	}
 
 	fmt.Println("Available templates:")
 	for _, dirEntry := range dir {
 		fmt.Printf("  - %s\n", dirEntry.Name())
 	}
+
+	return nil
 }

@@ -13,8 +13,7 @@ var projectNameRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 func Run(projectName string, force bool, template string) error {
 	fmt.Println("Initializing new stackgen project...")
 
-	err := validateProjectName(projectName)
-	if err != nil {
+	if err := validateProjectName(projectName); err != nil {
 		return err
 	}
 
@@ -35,38 +34,12 @@ func Run(projectName string, force bool, template string) error {
 
 	// Folder and File creation begins here!!!
 
-	err = createProjectDir(projectPath, exists, force)
-	if err != nil {
+	if err := createProjectDir(projectPath, exists, force); err != nil {
 		return err
 	}
 
-	var content []byte
-
-	content, err = os.ReadFile(filepath.Join(templatePath, "compose.yml"))
-	if err != nil {
-		return err
-	}
-	err = createFile(filepath.Join(projectPath, "compose.yml"), content, force)
-	if err != nil {
-		return err
-	}
-
-	content, err = os.ReadFile(filepath.Join(templatePath, ".env"))
-	if err != nil {
-		return err
-	}
-	err = createFile(filepath.Join(projectPath, ".env"), content, force)
-	if err != nil {
-		return err
-	}
-
-	content, err = os.ReadFile(filepath.Join(templatePath, "README.md"))
-	if err != nil {
-		return err
-	}
-	err = createFile(filepath.Join(projectPath, "README.md"), content, force)
-	if err != nil {
-		return err
+	if err := buildTemplate(templatePath, projectPath, force); err != nil {
+		return nil
 	}
 
 	fmt.Printf("\nInitialized stack in: %s\n", projectName)
@@ -142,6 +115,7 @@ func validateTargetPath(projectPath string, force bool) (bool, error) {
 
 func validateTemplatePath(templateName string) (string, error) {
 	templateDir := filepath.Join("templates", templateName)
+
 	info, err := os.Stat(templateDir)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -149,6 +123,7 @@ func validateTemplatePath(templateName string) (string, error) {
 		}
 		return "", err
 	}
+
 	if !info.IsDir() {
 		return "", fmt.Errorf("template path %s is not a directory", templateDir)
 	}
@@ -164,9 +139,55 @@ func createProjectDir(projectPath string, exists bool, force bool) error {
 
 	fmt.Printf("Creating project directory at: %s\n", projectPath)
 
-	err := os.MkdirAll(projectPath, 0755)
+	if err := os.MkdirAll(projectPath, 0755); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func buildTemplate(templatePath string, projectPath string, force bool) error {
+	dirEntries, err := os.ReadDir(templatePath)
 	if err != nil {
 		return err
+	}
+
+	for _, dirEntry := range dirEntries {
+		if dirEntry.IsDir() {
+			subDirPath := filepath.Join(projectPath, dirEntry.Name())
+			subTemplatePath := filepath.Join(templatePath, dirEntry.Name())
+
+			if err := os.Mkdir(subDirPath, 0755); err != nil {
+				return err
+			}
+
+			if err := buildTemplate(subTemplatePath, subDirPath, force); err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		filePath := filepath.Join(templatePath, dirEntry.Name())
+		if err := generateFile(filePath, projectPath, force); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func generateFile(filePath string, projectPath string, force bool) error {
+	var content []byte
+
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		return err
+	}
+
+	fileName := filepath.Join(projectPath, filepath.Base(filePath))
+	if err := createFile(fileName, content, force); err != nil {
+		return nil
 	}
 
 	return nil
