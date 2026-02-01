@@ -7,7 +7,7 @@ import (
 
 var force bool
 var template string
-var initCmd = &cobra.Command{
+var projectInitCmd = &cobra.Command{
 	Use:   "init <project-name>",
 	Short: "Initializes a new stackgen project",
 	Args:  cobra.ExactArgs(1),
@@ -18,7 +18,7 @@ var initCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
-	initCmd.Flags().BoolVar(&force, "force", false, "overwrite existing files if the target directory is not empty")
-	initCmd.Flags().StringVar(&template, "template", "basic", "specify project template to use (default: basic)")
+	rootCmd.AddCommand(projectInitCmd)
+	projectInitCmd.Flags().BoolVar(&force, "force", false, "overwrite existing files if the target directory is not empty")
+	projectInitCmd.Flags().StringVar(&template, "template", "basic", "specify project template to use (default: basic)")
 }
