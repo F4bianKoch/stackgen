@@ -42,7 +42,7 @@ Setting this up repeatedly is slow and error-prone.
 
 ## Features (current & planned)
 
-### v0.1.0
+### v0.1.x
 - `stackgen version` – returns current stackgen version
 - `stackgen doctor` – validate local prerequisistes (Docker, Compose, etc.)
 - `stackgen init <project-name>`
@@ -83,6 +83,7 @@ Run it:
 
 ```bash
 go run . 
+go test ./...
 ```
 
 Binary releases and `go install` support will be added later.
