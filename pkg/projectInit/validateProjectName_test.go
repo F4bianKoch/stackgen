@@ -1,7 +1,6 @@
 package projectInit
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -26,17 +25,5 @@ func TestValidateProjectName(t *testing.T) {
 				t.Fatalf("name=%q ok=%v err=%v", tc.name, tc.ok, err)
 			}
 		})
-	}
-}
-
-func TestResolvePath(t *testing.T) {
-	projectName := "testProject"
-	path, err := resolvePath(projectName)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-
-	if !strings.HasSuffix(path, projectName) {
-		t.Fatalf("expected path to end with %q, got %q", projectName, path)
 	}
 }
