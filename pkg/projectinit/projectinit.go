@@ -31,8 +31,6 @@ func Run(projectName string, force bool, template string) error {
 		return err
 	}
 
-	fmt.Println(templatePath)
-
 	// Folder and File creation begins here!!!
 
 	if err := templates.CreateTemplate(projectPath, templatePath, exists, force); err != nil {
