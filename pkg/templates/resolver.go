@@ -12,32 +12,38 @@ import (
 )
 
 func ResolveTemplatePath(templateName string) (string, error) {
+	source := "embed"
+	templatePath := templateName
+
+	if sourcePath := strings.SplitN(templateName, ":", 2); len(sourcePath) > 1 {
+		source = sourcePath[0]
+		templatePath = sourcePath[1]
+	}
+
 	var template Resolver
 
-	if strings.HasPrefix(templateName, "local:") {
-		template = LocalTemplate{}
-		templateName = strings.SplitN(templateName, ":", 2)[1]
-	}
-
-	if template == nil {
-		if name := strings.SplitN(templateName, ":", 2); len(name) > 1 {
-			templateName = name[1]
-		}
-
+	switch source {
+	case "embed":
 		template = EmbeddedTemplate{"templates"}
+
+	case "local":
+		template = LocalTemplate{}
+
+	default:
+		return "", fmt.Errorf("unknown template source %q", source)
 	}
 
-	return template.getTemplatePath(templateName)
+	return template.ResolveAbsPath(templatePath)
 }
 
 type Resolver interface {
-	getTemplatePath(templateName string) (string, error)
+	ResolveAbsPath(templateName string) (string, error)
 }
 
 type LocalTemplate struct {
 }
 
-func (lt LocalTemplate) getTemplatePath(templatePath string) (string, error) {
+func (lt LocalTemplate) ResolveAbsPath(templatePath string) (string, error) {
 	templatedir, err := filepath.Abs(templatePath)
 	if err != nil {
 		return "", err
@@ -50,7 +56,7 @@ type EmbeddedTemplate struct {
 	templateRoot string
 }
 
-func (et EmbeddedTemplate) getTemplatePath(templateName string) (string, error) {
+func (et EmbeddedTemplate) ResolveAbsPath(templateName string) (string, error) {
 	templatedir := filepath.Join(et.templateRoot, templateName)
 
 	return resolveFullPath(templatedir)
