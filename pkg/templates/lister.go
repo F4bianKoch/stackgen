@@ -6,15 +6,7 @@ import (
 	"path/filepath"
 )
 
-func Run(list bool) error {
-	if list {
-		listTemplates()
-	}
-
-	return nil
-}
-
-func listTemplates() error {
+func ListTemplates() error {
 	templatesPath, err := filepath.Abs("./templates")
 	dir, err := os.ReadDir(templatesPath)
 	if err != nil {

@@ -1,10 +1,37 @@
-package projectInit
+package templates
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 )
+
+func CreateTemplate(projectPath string, templatePath string, exists bool, force bool) error {
+	if err := createProjectDir(projectPath, exists, force); err != nil {
+		return err
+	}
+
+	if err := buildTemplate(templatePath, projectPath, force); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createProjectDir(projectPath string, exists bool, force bool) error {
+	if exists && force {
+		fmt.Printf("Using existing project directory at: %s\n", projectPath)
+		return nil
+	}
+
+	fmt.Printf("Creating project directory at: %s\n", projectPath)
+
+	if err := os.MkdirAll(projectPath, 0755); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func buildTemplate(templatePath string, projectPath string, force bool) error {
 	dirEntries, err := os.ReadDir(templatePath)

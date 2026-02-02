@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/f4biankoch/stackgen/pkg/projectInit"
+	projectInit "github.com/f4biankoch/stackgen/pkg/projectinit"
 	"github.com/spf13/cobra"
 )
 

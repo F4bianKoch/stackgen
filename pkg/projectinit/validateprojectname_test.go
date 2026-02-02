@@ -1,4 +1,4 @@
-package projectInit
+package projectinit
 
 import (
 	"testing"

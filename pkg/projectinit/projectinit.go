@@ -1,8 +1,10 @@
-package projectInit
+package projectinit
 
 import (
 	"fmt"
 	"regexp"
+
+	"github.com/f4biankoch/stackgen/pkg/templates"
 )
 
 var projectNameRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
@@ -24,19 +26,17 @@ func Run(projectName string, force bool, template string) error {
 		return err
 	}
 
-	templatePath, err := validateTemplatePath(template)
+	templatePath, err := templates.ResolveTemplatePath(template)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println(templatePath)
+
 	// Folder and File creation begins here!!!
 
-	if err := createProjectDir(projectPath, exists, force); err != nil {
+	if err := templates.CreateTemplate(projectPath, templatePath, exists, force); err != nil {
 		return err
-	}
-
-	if err := buildTemplate(templatePath, projectPath, force); err != nil {
-		return nil
 	}
 
 	fmt.Printf("\nInitialized stack in: %s\n", projectName)

@@ -10,7 +10,11 @@ var templatesCmd = &cobra.Command{
 	Use:   "templates",
 	Short: "interact with stackgens stack templates",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return templates.Run(list)
+		if list {
+			return templates.ListTemplates()
+		}
+
+		return nil
 	},
 }
 
