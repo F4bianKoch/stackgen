@@ -16,11 +16,11 @@ func ResolveTemplatePath(templateName string) (string, error) {
 
 	if strings.HasPrefix(templateName, "local:") {
 		template = LocalTemplate{}
-		templateName = strings.Split(templateName, ":")[1]
+		templateName = strings.SplitN(templateName, ":", 2)[1]
 	}
 
 	if template == nil {
-		if name := strings.Split(templateName, ":"); len(name) > 1 {
+		if name := strings.SplitN(templateName, ":", 2); len(name) > 1 {
 			templateName = name[1]
 		}
 
