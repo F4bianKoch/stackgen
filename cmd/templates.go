@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/f4biankoch/stackgen/pkg/templates"
+	"github.com/f4biankoch/stackgen/internal/templates"
 	"github.com/spf13/cobra"
 )
 

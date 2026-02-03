@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/f4biankoch/stackgen/pkg/templates"
+	"github.com/f4biankoch/stackgen/internal/templates"
 )
 
 var projectNameRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)

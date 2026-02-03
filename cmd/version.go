@@ -4,7 +4,7 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"github.com/f4biankoch/stackgen/pkg/version"
+	"github.com/f4biankoch/stackgen/internal/version"
 	"github.com/spf13/cobra"
 )
 
