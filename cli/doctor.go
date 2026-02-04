@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/f4biankoch/stackgen/pkg/doctor"
+	"github.com/f4biankoch/stackgen/internal/doctor"
 	"github.com/spf13/cobra"
 )
 

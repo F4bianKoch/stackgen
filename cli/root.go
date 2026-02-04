@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "0.1.2"
 var rootCmd = &cobra.Command{
 	Use:   "autostack",
 	Short: "Autostack is a CLI tool to generate infrastructure stacks",
