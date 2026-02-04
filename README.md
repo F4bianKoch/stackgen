@@ -2,13 +2,30 @@
 
 `stackgen` is a **CLI-first tool to generate and run lightweight, Docker-based automation stacks** for business processes.
 
+## What problem does this solve?
+
+Internal automation projects often repeat the same setup:
+
+- client / API / database
+- Docker Compose
+- environment variables
+- basic project structure
+- integration points for other APIs
+
+Setting this up repeatedly is slow and error-prone.
+
+Think of `stackgen` as a **stack generator + runner**, optimized for internal automation projects (sales, logistics, HR, IT, etc.).
+`stackgen` lets you bootstrap and run these stacks in seconds, so you can focus on **business logic**, not boilerplate.
+
+---
+
+## Who should use it?
+
 It is designed for engineers who want:
 - fast iteration on internal tools
 - full transparency over what is generated and executed
 - a Linux-first workflow
 - no UI magic, no black boxes
-
-Think of `stackgen` as a **stack generator + runner**, optimized for internal automation projects (sales, logistics, HR, IT, etc.).
 
 ---
 
@@ -24,22 +41,6 @@ Think of `stackgen` as a **stack generator + runner**, optimized for internal au
 
 ---
 
-## What problem does this solve?
-
-Internal automation projects often repeat the same setup:
-
-- client / API / database
-- Docker Compose
-- environment variables
-- basic project structure
-- integration points for other APIs
-
-Setting this up repeatedly is slow and error-prone.
-
-`stackgen` lets you bootstrap and run these stacks in seconds, so you can focus on **business logic**, not boilerplate.
-
----
-
 ## Features (current & planned)
 
 ### v0.1.x
@@ -47,10 +48,16 @@ Setting this up repeatedly is slow and error-prone.
 - `stackgen doctor` – validate local prerequisistes (Docker, Compose, etc.)
 - `stackgen init <project-name>`
 - Safe project scaffolding with `--force`
-- Template-based stack generation
+- Template-based stack generation with differnet template sources
 - Minimal Docker Compose stack (basic: postgres service)
 
-Authentication, advanced workflows, and plugins are intentionally **out of scope for the first versions**.
+### v0.2.x
+- reliable template engine:
+  - for templates from various sources
+  - template rendering for user customization
+- `--dry-run` flag
+- `--verbose` flag
+- first usable templates
 
 ### Notes
 - stackgen currently runs from the repository (templates are not embedded yet)
@@ -67,6 +74,8 @@ To use `stackgen`:
 - Docker (with Docker Compose v2)
 - Linux, or Windows/macOS with Docker Desktop
 - (Optional) Go if building from source
+
+Run `stackgen doctor` to check if your system satisfies all requirements.
 
 ---
 
