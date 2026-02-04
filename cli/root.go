@@ -8,9 +8,9 @@ import (
 
 var Version = "0.1.2"
 var rootCmd = &cobra.Command{
-	Use:   "autostack",
-	Short: "Autostack is a CLI tool to generate infrastructure stacks",
-	Long:  `Autostack is a command-line interface (CLI) tool to generate infrastructure stacks quickly and efficiently.`,
+	Use:   "stackgen",
+	Short: "Stackgen is a CLI tool to generate infrastructure stacks",
+	Long:  `Stackgen is a command-line interface (CLI) tool to generate infrastructure stacks quickly and efficiently.`,
 }
 
 func Execute() {
