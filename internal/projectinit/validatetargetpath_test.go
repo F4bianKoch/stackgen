@@ -20,10 +20,7 @@ func TestValidateTargetPath_NonExistentPaths(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("force=%t", tc.force), func(t *testing.T) {
 			invalidPath := filepath.Join(projectPath, "invalidPath")
-			exists, err := validateTargetPath(invalidPath, tc.force)
-			if exists {
-				t.Fatalf("path %v should not exits!", invalidPath)
-			}
+			err := validateTargetPath(invalidPath, tc.force)
 			if err != nil {
 				t.Fatalf("unexpected err=%v", err)
 			}
@@ -31,6 +28,7 @@ func TestValidateTargetPath_NonExistentPaths(t *testing.T) {
 	}
 }
 
+// This test does not really work!
 func TestValidateTargetPath_IsFile(t *testing.T) {
 	projectWorkingDir := t.TempDir()
 	projectDir := filepath.Join(projectWorkingDir, "testFile")
@@ -42,10 +40,10 @@ func TestValidateTargetPath_IsFile(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("force=%t", tc.force), func(t *testing.T) {
-			exists, err := validateTargetPath(projectDir, tc.force)
+			err := validateTargetPath(projectDir, tc.force)
 
-			if exists || err == nil {
-				t.Fatalf("path %v cannot a File", projectDir)
+			if err == nil {
+				t.Fatalf("path %v cannot be a File", projectDir)
 			}
 		})
 	}
@@ -56,11 +54,7 @@ func TestValidateTargetPath_AlreadyExistsButEmpty(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("force=%t", tc.force), func(t *testing.T) {
-			exists, err := validateTargetPath(projectDir, tc.force)
-
-			if !exists {
-				t.Fatalf("path %v already exists but exists=%t", projectDir, exists)
-			}
+			err := validateTargetPath(projectDir, tc.force)
 
 			if err != nil {
 				t.Fatalf("err should be nil but err=%v", err)
@@ -78,11 +72,7 @@ func TestValidateTargetPath_AlreadyExistsNotEmpty(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("force=%t", tc.force), func(t *testing.T) {
-			exists, err := validateTargetPath(projectDir, tc.force)
-
-			if !exists {
-				t.Fatalf("path %v already exists but exists=%t", projectDir, exists)
-			}
+			err := validateTargetPath(projectDir, tc.force)
 
 			if tc.force && err != nil {
 				t.Fatalf("err must be nil! force=%t, err=%v", tc.force, err)

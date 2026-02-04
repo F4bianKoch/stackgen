@@ -9,7 +9,7 @@ import (
 
 var projectNameRe = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
-func Run(projectName string, force bool, template string) error {
+func Run(projectName string, force bool, templateName string) error {
 	fmt.Println("Initializing new stackgen project...")
 
 	if err := validateProjectName(projectName); err != nil {
@@ -21,19 +21,18 @@ func Run(projectName string, force bool, template string) error {
 		return err
 	}
 
-	exists, err := validateTargetPath(projectPath, force)
-	if err != nil {
+	if err := validateTargetPath(projectPath, force); err != nil {
 		return err
 	}
 
-	templatePath, err := templates.ResolveTemplatePath(template)
+	templateFS, err := templates.ResolveTemplateFS(templateName)
 	if err != nil {
 		return err
 	}
 
 	// Folder and File creation begins here!!!
 
-	if err := templates.CreateTemplate(projectPath, templatePath, exists, force); err != nil {
+	if err := templates.BuildTemplate(projectPath, templateFS); err != nil {
 		return err
 	}
 

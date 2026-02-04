@@ -5,75 +5,60 @@ package templates
 */
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
+
+	embedded_templates "github.com/f4biankoch/stackgen/templates"
 )
 
-func ResolveTemplatePath(templateName string) (string, error) {
+func ResolveTemplateFS(templatePath string) (fs.FS, error) {
 	source := "embed"
-	templatePath := templateName
+	templateName := templatePath
 
-	if sourcePath := strings.SplitN(templateName, ":", 2); len(sourcePath) > 1 {
+	if sourcePath := strings.SplitN(templatePath, ":", 2); len(sourcePath) > 1 {
 		source = sourcePath[0]
-		templatePath = sourcePath[1]
+		templateName = sourcePath[1]
 	}
 
-	var template Resolver
+	if templateName == "" {
+		return nil, fmt.Errorf("template name cannot be empty")
+	}
 
 	switch source {
 	case "embed":
-		template = EmbeddedTemplate{"templates"}
+		templateRoot, err := fs.Sub(embedded_templates.FS, templateName)
+		if err != nil {
+			return nil, fmt.Errorf("embedded template %q not found: %w", templateName, err)
+		}
+
+		if _, err := fs.Stat(templateRoot, "."); err != nil {
+			if errors.Is(err, fs.ErrNotExist) {
+				return nil, fmt.Errorf("embedded template %q not found", templateName)
+			}
+			return nil, fmt.Errorf("cannot access embedded template %q: %w", templateName, err)
+		}
+
+		return templateRoot, nil
 
 	case "local":
-		template = LocalTemplate{}
+		info, err := os.Stat(templateName)
+		if err != nil {
+			if os.IsNotExist(err) {
+				return nil, fmt.Errorf("local template %q not found", templateName)
+			}
+
+			return nil, fmt.Errorf("cannot access local template folder %q: %w", templateName, err)
+		}
+		if !info.IsDir() {
+			return nil, fmt.Errorf("local template %q must be a directory", templateName)
+		}
+
+		return os.DirFS(templateName), nil
 
 	default:
-		return "", fmt.Errorf("unknown template source %q", source)
+		return nil, fmt.Errorf("unknown template source %q", source)
 	}
-
-	return template.ResolveAbsPath(templatePath)
-}
-
-type Resolver interface {
-	ResolveAbsPath(templateName string) (string, error)
-}
-
-type LocalTemplate struct {
-}
-
-func (lt LocalTemplate) ResolveAbsPath(templatePath string) (string, error) {
-	templatedir, err := filepath.Abs(templatePath)
-	if err != nil {
-		return "", err
-	}
-
-	return resolveFullPath(templatedir)
-}
-
-type EmbeddedTemplate struct {
-	templateRoot string
-}
-
-func (et EmbeddedTemplate) ResolveAbsPath(templateName string) (string, error) {
-	templatedir := filepath.Join(et.templateRoot, templateName)
-
-	return resolveFullPath(templatedir)
-}
-
-func resolveFullPath(templatedir string) (string, error) {
-	info, err := os.Stat(templatedir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return "", fmt.Errorf("template %q not found (expected folder %s)", filepath.Base(templatedir), templatedir)
-		}
-		return "", err
-	}
-
-	if !info.IsDir() {
-		return "", fmt.Errorf("template path %s is not a directory", templatedir)
-	}
-
-	return templatedir, nil
 }

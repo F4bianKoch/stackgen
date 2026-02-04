@@ -5,34 +5,37 @@ import (
 	"os"
 )
 
-func validateTargetPath(projectPath string, force bool) (bool, error) {
+func validateTargetPath(projectPath string, force bool) error {
 	fileInfo, err := os.Stat(projectPath)
 
 	if os.IsNotExist(err) {
-		return false, nil
+		fmt.Printf("Creating project directory at: %s\n", projectPath)
+		return nil
 	}
 
 	if err == nil {
 		if !fileInfo.IsDir() {
-			return false, fmt.Errorf("a file with the name %s already exists", projectPath)
+			return fmt.Errorf("a file with the name %s already exists", projectPath)
 		}
 
 		entries, err := os.ReadDir(projectPath)
 
 		if err != nil {
-			return true, fmt.Errorf("error reading target directory: %v", err)
+			return fmt.Errorf("error reading target directory: %v", err)
 		}
 
 		if len(entries) == 0 {
-			return true, nil
+			fmt.Printf("Using existing project directory at: %s\n", projectPath)
+			return nil
 		}
 
 		if force {
-			return true, nil
+			fmt.Printf("Overriding existing project directory at: %s\n", projectPath)
+			return nil
 		}
 
-		return true, fmt.Errorf("%s already exists. Use --force to overwrite", projectPath)
+		return fmt.Errorf("%s already exists. Use --force to overwrite", projectPath)
 	}
 
-	return false, err
+	return err
 }
