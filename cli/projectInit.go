@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	projectInit "github.com/f4biankoch/stackgen/internal/projectinit"
