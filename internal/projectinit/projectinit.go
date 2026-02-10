@@ -30,15 +30,17 @@ func Run(projectName string, force bool, templateName string, defaults bool) err
 		return err
 	}
 
+	options, err := templates.ValidateManifest(templateFS, defaults)
+
 	// Folder and File creation begins here!!!
 
-	if err := templates.BuildProjectFromTemplate(projectPath, templateFS, defaults); err != nil {
+	if err := templates.BuildProjectFromTemplate(projectPath, templateFS, options); err != nil {
 		return err
 	}
 
-	fmt.Printf("\nInitialized stack in: %s\n", projectName)
+	fmt.Printf("\nInitialized stack in: %q\n", projectPath)
 	fmt.Printf("\nNext Steps: \n")
-	fmt.Printf(" - cd %s\n", projectName)
+	fmt.Printf(" - cd %s\n", projectPath)
 	fmt.Printf(" - docker compose up -d\n")
 	fmt.Printf(" - docker compose logs -f\n")
 

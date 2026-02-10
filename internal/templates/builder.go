@@ -1,62 +1,23 @@
 package templates
 
 import (
-	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
 
-func BuildProjectFromTemplate(projectPath string, template fs.FS, defaults bool) error {
-	if err := validateTemplate(template, defaults); err != nil {
+func BuildProjectFromTemplate(projectPath string, template fs.FS, options Options) error {
+	if options.minimal {
 		return buildMinimalProject(projectPath, template)
 	}
 
 	return buildProject(template, projectPath)
 }
 
-func validateTemplate(template fs.FS, defaults bool) error {
-	manifestFile, err := fs.ReadFile(template, "stackgen.json")
-	if err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("stackgen.json does not exist in the template: %w", err)
-		}
-
-		return fmt.Errorf("unexpected Error while validating template: %w", err)
-	}
-
-	var manifest Manifest
-	err = json.Unmarshal(manifestFile, &manifest)
-	if err != nil {
-		return fmt.Errorf("while parsing stackgen.json: %v", err)
-	}
-
-	var invalidOptions []string
-	for name, option := range manifest.Options {
-		if !option.Required {
-			continue
-		}
-
-		if defaults && option.Default == nil {
-			invalidOptions = append(invalidOptions, fmt.Sprintf("option %q does not have a default value", name))
-		}
-
-		if !defaults && option.Value == nil {
-			if option.Default == nil {
-				invalidOptions = append(invalidOptions, fmt.Sprintf("value of option %q needs to be specified", name))
-			}
-		}
-	}
-
-	for _, invalidOption := range invalidOptions {
-		return fmt.Errorf(invalidOption)
-	}
-
-	return nil
-}
-
 func buildMinimalProject(projectPath string, template fs.FS) error {
+	fmt.Printf("\nBuilding minimal Project at %q:\n", projectPath)
+
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		return err
 	}
@@ -71,6 +32,8 @@ func buildMinimalProject(projectPath string, template fs.FS) error {
 }
 
 func buildProject(template fs.FS, projectPath string) error {
+	fmt.Printf("\nBuilding Project at %q:\n", projectPath)
+
 	return fs.WalkDir(template, ".", func(path string, dirEntry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -92,7 +55,7 @@ func buildProject(template fs.FS, projectPath string) error {
 }
 
 func generateFile(path string, content []byte) error {
-	fmt.Printf("Creating file: %s\n", path)
+	fmt.Printf("Creating file: %q\n", path)
 
 	// safety check (normally all directories should be created at this point)
 	// overhead is acceptable

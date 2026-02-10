@@ -1,11 +1,7 @@
 package templates
 
-type Manifest struct {
-	Project_name string
-	Description  string
-	Version      string
-	Template     string
-
+type Options struct {
+	minimal bool
 	Options map[string]Option
 }
 
