@@ -1,28 +1,11 @@
 {
-  "project_name": "{{ project_name }}",
-  "description": "{{ description }}",
-  "version": "{{ version }}",
-  "template": "{{ template }}",
+  "project_name": "{{ .Project_name }}",
+  "template_source": "{{ .Template_source }}",
 
   "options": {
-    "template_source": {
-      "value": null,
-      "default": "embed:basic",
-      "required": true
-    },
-    "project_name": {
-      "value": null,
-      "default": "my_project",
-      "required": true
-    },
-    "project_description": {
-      "value": null,
-      "default": "Basic Project",
-      "required": true
-    },
-    "project_version": {
-      "value": null,
-      "default": "v0.1.0",
+    "port": {
+      "value": 8001,
+      "default": 8000,
       "required": true
     }
   }

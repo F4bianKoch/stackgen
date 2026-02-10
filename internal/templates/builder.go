@@ -2,39 +2,37 @@ package templates
 
 import (
 	"fmt"
+	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
 )
 
 func BuildProjectFromTemplate(projectPath string, template fs.FS, options Options) error {
-	if options.minimal {
-		return buildMinimalProject(projectPath, template)
+	if options.Minimal {
+		return buildMinimalProject(projectPath, template, options)
 	}
 
-	return buildProject(template, projectPath)
+	return buildProject(projectPath, template, options)
 }
 
-func buildMinimalProject(projectPath string, template fs.FS) error {
+func buildMinimalProject(projectPath string, templateFS fs.FS, options Options) error {
 	fmt.Printf("\nBuilding minimal Project at %q:\n", projectPath)
 
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		return err
 	}
 
-	manifestFile, err := fs.ReadFile(template, "stackgen.json")
-	if err != nil {
-		return err
-	}
+	manifestPath := filepath.Join(projectPath, Manifest)
+	manifestTemplate := template.Must(template.ParseFS(templateFS, Manifest))
 
-	manifestPath := filepath.Join(projectPath, "stackgen.json")
-	return generateFile(manifestPath, manifestFile)
+	return renderTemplateToFile(manifestPath, manifestTemplate, options)
 }
 
-func buildProject(template fs.FS, projectPath string) error {
+func buildProject(projectPath string, templateFS fs.FS, options Options) error {
 	fmt.Printf("\nBuilding Project at %q:\n", projectPath)
 
-	return fs.WalkDir(template, ".", func(path string, dirEntry fs.DirEntry, err error) error {
+	return fs.WalkDir(templateFS, ".", func(path string, dirEntry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -45,16 +43,16 @@ func buildProject(template fs.FS, projectPath string) error {
 		}
 
 		projectFile := filepath.Join(projectPath, path)
-		templateFile, err := fs.ReadFile(template, path)
+		templateFile := template.Must(template.ParseFS(templateFS, path))
 		if err != nil {
 			return err
 		}
 
-		return generateFile(projectFile, templateFile)
+		return renderTemplateToFile(projectFile, templateFile, options)
 	})
 }
 
-func generateFile(path string, content []byte) error {
+func renderTemplateToFile(path string, template *template.Template, options Options) error {
 	fmt.Printf("Creating file: %q\n", path)
 
 	// safety check (normally all directories should be created at this point)
@@ -64,5 +62,11 @@ func generateFile(path string, content []byte) error {
 	}
 
 	// truncates existing file content which is wanted
-	return os.WriteFile(path, content, 0644)
+	projectFile, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer projectFile.Close()
+
+	return template.Execute(projectFile, options)
 }

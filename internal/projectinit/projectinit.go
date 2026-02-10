@@ -31,6 +31,12 @@ func Run(projectName string, force bool, templateName string, defaults bool) err
 	}
 
 	options, err := templates.ValidateManifest(templateFS, defaults)
+	if err != nil {
+		return err
+	}
+
+	options.Project_name = projectName
+	options.Template_source = templateName
 
 	// Folder and File creation begins here!!!
 

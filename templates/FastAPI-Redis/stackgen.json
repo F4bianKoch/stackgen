@@ -1,0 +1,7 @@
+{
+  "project_name": "{{ .Project_name }}",
+  "template": "{{ .Template_source }}",
+
+  "options": {
+  }
+}

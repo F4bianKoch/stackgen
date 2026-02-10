@@ -1,8 +1,0 @@
-name: FastAPI-Redis
-description: ""
-version: 0.1.0
-
-variables:
-  project_name:
-    name: "<Project name>"
-    required: true
