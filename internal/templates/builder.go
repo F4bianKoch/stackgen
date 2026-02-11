@@ -44,9 +44,6 @@ func buildProject(projectPath string, templateFS fs.FS, options Options) error {
 
 		projectFile := filepath.Join(projectPath, path)
 		templateFile := template.Must(template.ParseFS(templateFS, path))
-		if err != nil {
-			return err
-		}
 
 		return renderTemplateToFile(projectFile, templateFile, options)
 	})
