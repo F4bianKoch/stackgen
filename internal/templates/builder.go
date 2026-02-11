@@ -8,28 +8,7 @@ import (
 	"path/filepath"
 )
 
-func BuildProjectFromTemplate(projectPath string, template fs.FS, options Options) error {
-	if options.Minimal {
-		return buildMinimalProject(projectPath, template, options)
-	}
-
-	return buildProject(projectPath, template, options)
-}
-
-func buildMinimalProject(projectPath string, templateFS fs.FS, options Options) error {
-	fmt.Printf("\nBuilding minimal Project at %q:\n", projectPath)
-
-	if err := os.MkdirAll(projectPath, 0755); err != nil {
-		return err
-	}
-
-	manifestPath := filepath.Join(projectPath, Manifest)
-	manifestTemplate := template.Must(template.ParseFS(templateFS, Manifest))
-
-	return renderTemplateToFile(manifestPath, manifestTemplate, options)
-}
-
-func buildProject(projectPath string, templateFS fs.FS, options Options) error {
+func BuildProjectFromTemplate(projectPath string, templateFS fs.FS, metadata Metadata) error {
 	fmt.Printf("\nBuilding Project at %q:\n", projectPath)
 
 	return fs.WalkDir(templateFS, ".", func(path string, dirEntry fs.DirEntry, err error) error {
@@ -45,11 +24,11 @@ func buildProject(projectPath string, templateFS fs.FS, options Options) error {
 		projectFile := filepath.Join(projectPath, path)
 		templateFile := template.Must(template.ParseFS(templateFS, path))
 
-		return renderTemplateToFile(projectFile, templateFile, options)
+		return renderTemplateToFile(projectFile, templateFile, metadata)
 	})
 }
 
-func renderTemplateToFile(path string, template *template.Template, options Options) error {
+func renderTemplateToFile(path string, template *template.Template, metadata Metadata) error {
 	fmt.Printf("Creating file: %q\n", path)
 
 	// safety check (normally all directories should be created at this point)
@@ -65,5 +44,5 @@ func renderTemplateToFile(path string, template *template.Template, options Opti
 	}
 	defer projectFile.Close()
 
-	return template.Execute(projectFile, options)
+	return template.Execute(projectFile, metadata)
 }

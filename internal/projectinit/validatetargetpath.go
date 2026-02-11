@@ -9,7 +9,7 @@ func validateTargetPath(projectPath string, force bool) error {
 	fileInfo, err := os.Stat(projectPath)
 
 	if os.IsNotExist(err) {
-		fmt.Printf("Creating project directory at: %s\n", projectPath)
+		fmt.Printf("Creating project directory at: %s\n\n", projectPath)
 		return nil
 	}
 
@@ -30,7 +30,7 @@ func validateTargetPath(projectPath string, force bool) error {
 		}
 
 		if force {
-			fmt.Printf("Overriding existing project directory at: %s\n", projectPath)
+			fmt.Printf("Overriding existing project directory at: %s\n\n", projectPath)
 			return nil
 		}
 

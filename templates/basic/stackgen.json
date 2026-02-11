@@ -1,12 +1,6 @@
 {
-  "project_name": "{{ .Project_name }}",
-  "template_source": "{{ .Template_source }}",
-
-  "options": {
-    "port": {
-      "value": 8001,
-      "default": 8000,
-      "required": true
-    }
-  }
+    "postgres_user": "stackgen",
+    "postgres_password": "stackgen",
+    "postgres_db": "stackgen",
+    "port": 8000
 }
