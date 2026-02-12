@@ -7,6 +7,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/f4biankoch/stackgen/internal"
 )
 
 func BuildProjectFromTemplate(projectPath string, templateFS fs.FS, metadata Metadata) error {
@@ -25,7 +27,7 @@ func BuildProjectFromTemplate(projectPath string, templateFS fs.FS, metadata Met
 		projectFile := filepath.Join(projectPath, path)
 		templateFile := template.Must(template.ParseFS(templateFS, path))
 
-		if path == Manifest {
+		if path == internal.Manifest {
 			return renderManifest(projectFile, metadata)
 		}
 

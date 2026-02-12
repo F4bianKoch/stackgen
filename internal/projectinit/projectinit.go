@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/f4biankoch/stackgen/internal"
 	"github.com/f4biankoch/stackgen/internal/templates"
 )
 
@@ -42,10 +43,7 @@ func Run(projectName string, force bool, templateName string, defaults bool) err
 	}
 
 	fmt.Printf("\nInitialized stack in: %q\n", projectPath)
-	fmt.Printf("\nNext Steps: \n")
-	fmt.Printf(" - cd %s\n", projectPath)
-	fmt.Printf(" - docker compose up -d\n")
-	fmt.Printf(" - docker compose logs -f\n")
+	internal.PrintNextSteps(projectPath)
 
 	return nil
 }

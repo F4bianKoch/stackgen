@@ -1,3 +1,3 @@
-package templates
+package internal
 
 const Manifest = "stackgen.json"
