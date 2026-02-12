@@ -51,16 +51,23 @@ It is designed for engineers who want:
 - Template-based stack generation with differnet template sources
 - Minimal Docker Compose stack (basic: postgres service)
 
-### v0.2.x
+### v0.2.x (latest)
 - reliable template engine:
+  - list available embedded templates
   - for templates from various sources
   - template rendering for user customization
-- `--dry-run` flag
-- `--verbose` flag
+  - user specifies options on `stackgen init`
+- `stackgen reinit` – reinitializes project with current options in manifest
+- `--defaults` flag for `stackgen init` and `stackgen reinit` to use default values
 - first usable templates
 
+### v0.3.x
+- improve tests
+- `--dry-run` flag
+- `--verbose` flag
+- cleanups
+
 ### Notes
-- stackgen currently runs from the repository (templates are not embedded yet)
 - Linux-first development
 
 Feedback welcome!
@@ -88,16 +95,25 @@ git clone https://github.com/<your-username>/stackgen.git
 cd stackgen
 ```
 
-Run it:
+Run it (with go):
 
 ```bash
 go run . 
 go test ./...
 ```
 
+Build it (with go):
+
+```bash
+go build -o ./stackgen . 
+```
+
+
 Binary releases and `go install` support will be added later.
 
-### Usage (early preview)
+### Usage
+
+Run it:
 ```bash
 stackgen doctor
 stackgen init my-automation
@@ -135,6 +151,8 @@ go run . --help
 ```
 
 The source code is mounted from the host; only tooling runs inside the container.
+
+For VSCode useres there is also a `.devcontainer` provided in the Repository that does the steps above for you.
 
 ## Status
 

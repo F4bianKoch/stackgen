@@ -1,0 +1,7 @@
+{
+    "template_source": "basic",
+    "postgres_user": "stackgen",
+    "postgres_password": "stackgen",
+    "postgres_db": "stackgen",
+    "port": 8000
+}

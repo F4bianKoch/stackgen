@@ -18,7 +18,9 @@ func ListTemplates() error {
 
 	fmt.Println("Available templates:")
 	for _, dirEntry := range dir {
-		fmt.Printf("  - %s\n", dirEntry.Name())
+		if dirEntry.IsDir() {
+			fmt.Printf("  - %s\n", dirEntry.Name())
+		}
 	}
 
 	return nil
