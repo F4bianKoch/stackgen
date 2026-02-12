@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Version = "0.1.2"
+var Version = "v0.2.0"
 var rootCmd = &cobra.Command{
 	Use:   "stackgen",
 	Short: "Stackgen is a CLI tool to generate infrastructure stacks",
