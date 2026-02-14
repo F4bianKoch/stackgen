@@ -53,6 +53,9 @@ func TestBuildProjectFromTemplate(t *testing.T) {
 			projectPath := t.TempDir()
 			err := BuildProjectFromTemplate(projectPath, test.templateFS, test.metadata)
 			requireErr(t, err, test.wantErr)
+			if test.wantErr {
+				return
+			}
 			validateResult(t, projectPath, test.templateFS)
 		})
 	}
