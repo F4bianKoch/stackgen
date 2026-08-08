@@ -3,6 +3,7 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 
@@ -14,7 +15,7 @@ func ResolveMetadata(template fs.FS, defaults bool) (Metadata, error) {
 
 	manifestFile, err := resolveManifest(template)
 	if err != nil {
-		return nil, err
+		return metadata, err
 	}
 
 	metadata, err = manifestToJson(manifestFile, &metadata)
@@ -27,7 +28,7 @@ func ResolveMetadata(template fs.FS, defaults bool) (Metadata, error) {
 			continue
 		}
 
-		value = resolveValue(option, value, defaults)
+		value = resolveValue(os.Stdin, os.Stdout, option, value, defaults)
 		metadata[option] = value
 	}
 
@@ -55,14 +56,18 @@ func resolveManifest(template fs.FS) ([]byte, error) {
 	return manifestFile, nil
 }
 
-func resolveValue(option string, value any, defaults bool) any {
+func resolveValue(in io.Reader, out io.Writer, option string, value any, defaults bool) any {
 	if defaults {
 		return value
 	}
 
 	var resolvedValue string
-	fmt.Printf("%s [%v]: ", option, value)
-	fmt.Scanln(&resolvedValue)
+	fmt.Fprintf(out, "%s [%v]: ", option, value)
+
+	_, err := fmt.Fscanln(in, &resolvedValue)
+	if err != nil {
+		resolvedValue = ""
+	}
 
 	if resolvedValue == "" {
 		return value

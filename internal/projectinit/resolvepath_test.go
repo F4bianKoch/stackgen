@@ -1,20 +1,21 @@
 package projectinit
 
 import (
-	"strings"
+	"path/filepath"
 	"testing"
 )
 
 func TestResolvePath(t *testing.T) {
+	workingDir := t.TempDir()
+	chdir(t, workingDir)
 	projectName := "testProject"
-	t.Run("resolve_path", func(t *testing.T) {
-		path, err := resolvePath(projectName)
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
+	path, err := resolvePath(projectName)
+	if err != nil {
+		t.Fatalf("resolvePath() error = %v", err)
+	}
 
-		if !strings.HasSuffix(path, projectName) {
-			t.Fatalf("expected path to end with %q, got %q", projectName, path)
-		}
-	})
+	want := filepath.Join(workingDir, projectName)
+	if path != want {
+		t.Fatalf("resolvePath() = %q, want %q", path, want)
+	}
 }

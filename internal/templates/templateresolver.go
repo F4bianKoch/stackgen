@@ -1,9 +1,5 @@
 package templates
 
-/*
-	Cannot test this yet without a good template engine
-*/
-
 import (
 	"errors"
 	"fmt"

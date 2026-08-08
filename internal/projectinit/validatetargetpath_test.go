@@ -28,14 +28,16 @@ func TestValidateTargetPath_NonExistentPaths(t *testing.T) {
 	}
 }
 
-// This test does not really work!
 func TestValidateTargetPath_IsFile(t *testing.T) {
 	projectWorkingDir := t.TempDir()
 	projectDir := filepath.Join(projectWorkingDir, "testFile")
 
-	_, err := os.Create(projectDir)
+	file, err := os.Create(projectDir)
 	if err != nil {
 		t.Fatalf("unexpected err=%v", err)
+	}
+	if err := file.Close(); err != nil {
+		t.Fatalf("close test file: %v", err)
 	}
 
 	for _, tc := range cases {

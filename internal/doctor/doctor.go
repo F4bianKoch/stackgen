@@ -2,6 +2,7 @@ package doctor
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -198,19 +199,19 @@ func Run() error {
 // runCmd executes a command with a timeout and returns stdout.
 // If it fails, stderr is included in the returned error.
 func runCmd(timeout time.Duration, name string, args ...string) (string, error) {
-	cmd := exec.Command(name, args...)
+	var cmd *exec.Cmd
+	if timeout > 0 {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		cmd = exec.CommandContext(ctx, name, args...)
+	} else {
+		cmd = exec.Command(name, args...)
+	}
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-
-	if timeout > 0 {
-		timer := time.AfterFunc(timeout, func() {
-			_ = cmd.Process.Kill()
-		})
-		defer timer.Stop()
-	}
 
 	err := cmd.Run()
 	if err != nil {

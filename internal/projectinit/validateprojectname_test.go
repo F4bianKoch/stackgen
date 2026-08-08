@@ -6,23 +6,28 @@ import (
 
 func TestValidateProjectName(t *testing.T) {
 	cases := []struct {
-		name string
-		ok   bool
+		testName    string
+		projectName string
+		ok          bool
 	}{
-		{"abc", true},
-		{"abc-123", true},
-		{"abc_123", true},
-		{"bad name", false},
-		{"bad*name", false},
-		{"../escape", false},
-		{"", false},
+		{"letters", "abc", true},
+		{"hyphen", "abc-123", true},
+		{"underscore", "abc_123", true},
+		{"space", "bad name", false},
+		{"special character", "bad*name", false},
+		{"forward slash", "../escape", false},
+		{"backslash", `..\escape`, false},
+		{"current directory", ".", false},
+		{"parent directory", "..", false},
+		{"leading hyphen", "-project", false},
+		{"empty", "", false},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			err := validateProjectName(tc.name)
+		t.Run(tc.testName, func(t *testing.T) {
+			err := validateProjectName(tc.projectName)
 			if (err == nil) != tc.ok {
-				t.Fatalf("name=%q ok=%v err=%v", tc.name, tc.ok, err)
+				t.Fatalf("validateProjectName(%q) error = %v, want valid %v", tc.projectName, err, tc.ok)
 			}
 		})
 	}
