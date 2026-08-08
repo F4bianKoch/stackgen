@@ -3,10 +3,10 @@ package templates
 import (
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"github.com/f4biankoch/stackgen/internal"
 )
@@ -25,10 +25,14 @@ func BuildProjectFromTemplate(projectPath string, templateFS fs.FS, metadata Met
 		}
 
 		projectFile := filepath.Join(projectPath, path)
-		templateFile := template.Must(template.ParseFS(templateFS, path))
 
 		if path == internal.Manifest {
 			return renderManifest(projectFile, metadata)
+		}
+
+		templateFile, err := template.ParseFS(templateFS, path)
+		if err != nil {
+			return fmt.Errorf("parse template %q: %w", path, err)
 		}
 
 		return renderFileFromTemplate(projectFile, templateFile, metadata)

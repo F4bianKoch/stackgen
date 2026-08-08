@@ -1,93 +1,93 @@
 package templates
 
 import (
-	"io/fs"
+	"encoding/json"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
 )
 
 func TestBuildProjectFromTemplate(t *testing.T) {
-	tests := []struct {
-		name       string
-		templateFS fstest.MapFS
-		metadata   Metadata
-		wantErr    bool
-	}{
-		{
-			"Template with no files",
-			fstest.MapFS{},
-			Metadata{},
-			false,
-		},
-		{
-			"Template with Manifest",
-			fstest.MapFS{
-				"stackgen.json": {Data: []byte("{}")},
-			},
-			Metadata{},
-			false,
-		},
-		{
-			"Template with other files",
-			fstest.MapFS{
-				".env": {Data: []byte("")},
-			},
-			Metadata{},
-			false,
-		},
-		{
-			"Template with Manifest and other files",
-			fstest.MapFS{
-				"stackgen.json": {Data: []byte("{}")},
-				".env":          {Data: []byte("")},
-			},
-			Metadata{},
-			false,
-		},
+	templateFS := fstest.MapFS{
+		"stackgen.json": {Data: []byte(`{"ignored":"template manifest contents"}`)},
+		".env":          {Data: []byte("PORT={{ index . \"port\" }}\n")},
+		"nested/config": {Data: []byte("name={{ index . \"name\" }}\n")},
+	}
+	metadata := Metadata{"name": "example&co", "port": 8080}
+	projectPath := t.TempDir()
+
+	if err := BuildProjectFromTemplate(projectPath, templateFS, metadata); err != nil {
+		t.Fatalf("BuildProjectFromTemplate() error = %v", err)
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			projectPath := t.TempDir()
-			err := BuildProjectFromTemplate(projectPath, test.templateFS, test.metadata)
-			requireErr(t, err, test.wantErr)
-			if test.wantErr {
-				return
-			}
-			validateResult(t, projectPath, test.templateFS)
-		})
+	assertFileContents(t, filepath.Join(projectPath, ".env"), "PORT=8080\n")
+	assertFileContents(t, filepath.Join(projectPath, "nested/config"), "name=example&co\n")
+
+	manifestData, err := os.ReadFile(filepath.Join(projectPath, "stackgen.json"))
+	if err != nil {
+		t.Fatalf("read generated manifest: %v", err)
+	}
+	var gotMetadata Metadata
+	if err := json.Unmarshal(manifestData, &gotMetadata); err != nil {
+		t.Fatalf("generated manifest is invalid JSON: %v", err)
+	}
+	if gotMetadata["name"] != "example&co" || gotMetadata["port"] != float64(8080) {
+		t.Fatalf("generated manifest = %#v, want metadata values preserved", gotMetadata)
 	}
 }
 
-func validateResult(t *testing.T, projectPath string, templateFS fstest.MapFS) {
+func TestBuildProjectFromTemplate_OverwritesExistingFile(t *testing.T) {
+	projectPath := t.TempDir()
+	path := filepath.Join(projectPath, "config.txt")
+	if err := os.WriteFile(path, []byte("old contents that are longer"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	err := BuildProjectFromTemplate(projectPath, fstest.MapFS{
+		"config.txt": {Data: []byte("new")},
+	}, Metadata{})
+	if err != nil {
+		t.Fatalf("BuildProjectFromTemplate() error = %v", err)
+	}
+
+	assertFileContents(t, path, "new")
+}
+
+func TestBuildProjectFromTemplate_ReturnsTemplateParseError(t *testing.T) {
+	err := BuildProjectFromTemplate(t.TempDir(), fstest.MapFS{
+		"broken.txt": {Data: []byte("{{")},
+	}, Metadata{})
+	if err == nil {
+		t.Fatal("BuildProjectFromTemplate() error = nil, want malformed template error")
+	}
+	if !strings.Contains(err.Error(), `parse template "broken.txt"`) {
+		t.Fatalf("BuildProjectFromTemplate() error = %q, want file context", err)
+	}
+}
+
+func TestBuildProjectFromTemplate_ReturnsFilesystemError(t *testing.T) {
+	projectPath := t.TempDir()
+	if err := os.WriteFile(filepath.Join(projectPath, "nested"), []byte("file"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	err := BuildProjectFromTemplate(projectPath, fstest.MapFS{
+		"nested/config": {Data: []byte("value")},
+	}, Metadata{})
+	if err == nil {
+		t.Fatal("BuildProjectFromTemplate() error = nil, want parent path error")
+	}
+}
+
+func assertFileContents(t *testing.T, path, want string) {
 	t.Helper()
-	projectFS := os.DirFS(projectPath)
-
-	fs.WalkDir(projectFS, ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			t.Fatalf("unexpeted error: %v", err)
-		}
-		if path == "." {
-			return nil
-		}
-
-		file, err := fs.ReadFile(templateFS, path)
-
-		if err != nil {
-			t.Fatalf("couldn't find %q in project but is in template", path)
-		}
-
-		projectFile, err := fs.ReadFile(projectFS, path)
-		if err != nil {
-			t.Fatalf("unexpected error=%v", err)
-		}
-
-		if strings.Compare(string(file), string(projectFile)) != 0 {
-			t.Fatalf("file %q contents did not match: wanted=%s\n\ngot=%s", path, projectFile, file)
-		}
-
-		return nil
-	})
+	got, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("read %q: %v", path, err)
+	}
+	if string(got) != want {
+		t.Fatalf("%s contents = %q, want %q", path, got, want)
+	}
 }
